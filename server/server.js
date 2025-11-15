@@ -1,8 +1,15 @@
 // server.js
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const OpenAI = require("openai");
+
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import OpenAI from "openai";
+
+import { ElevenLabsClient, play } from "@elevenlabs/elevenlabs-js";
+
+dotenv.config();
+const elevenlabs = new ElevenLabsClient();
+const voiceId = "21m00Tcm4TlvDq8ikWAM";
 
 const app = express();
 const port = 3000;
@@ -21,52 +28,50 @@ app.get("/", (req, res) => {
   res.send("book-to-speech server is running ✅");
 });
 
-// outputs the speech
+app.get("/voices", async (req, res) => {
+  try {
+    const response = await fetch("https://api.elevenlabs.io/v2/voices", {
+      method: "GET",
+      headers: {
+        "xi-api-key": process.env.ELEVENLABS_API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      console.log(await response.text());
+      return res.status(500).send("Error fetching voices");
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+});
+
 app.post("/api/elevens", async (req, res) => {
   try {
-    const VOICE_ID = req.body.voice_id;
-    const textToSpeak = req.body.text;
-    const narrationSpeed = req.body.speed;
+    const audioStream = await elevenlabs.textToSpeech.convert(voiceId, {
+      text: req.body.text,
+      modelId: "eleven_v3",
+      outputFormat: "mp3_44100_128",
+    });
 
-    if (!VOICE_ID || !textToSpeak) {
-      return res
-        .status(400)
-        .send("Missing required parameters: voice_id and text.");
+    // Convert stream → buffer
+    const chunks = [];
+    for await (const chunk of audioStream) {
+      chunks.push(chunk);
     }
-    const body = {
-      text: textToSpeak,
-      model_id: "eleven_multilingual_v2",
-      output_format: "mp3_44100_128",
-      voice_settings: {
-        speed: narrationSpeed,
-      },
-    };
+    const audioBuffer = Buffer.concat(chunks);
 
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
-      {
-        method: "POST",
-        headers: {
-          "xi-api-key": process.env.ELEVENLABS_API_KEY,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      }
-    );
-    if (!response.ok) {
-      const errMessage = await response.text();
-      console.error(errMessage);
-      return res.status(500).send("Error from ElevenLabs");
-    }
-
-    const mp3Buffer = Buffer.from(await response.arrayBuffer());
-
+    // send the MP3 file
     res.set({
       "Content-Type": "audio/mpeg",
       "Content-Disposition": "attachment; filename=output.mp3",
     });
 
-    res.send(mp3Buffer);
+    res.send(audioBuffer);
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
