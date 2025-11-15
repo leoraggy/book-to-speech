@@ -52,7 +52,7 @@ app.get("/voices", async (req, res) => {
 
 app.post("/api/elevens", async (req, res) => {
   try {
-    voiceId =
+    let voiceId =
       req.body.gender == "female"
         ? "21m00Tcm4TlvDq8ikWAM"
         : "29vD33N1CtxCmqQRPOHJ";
