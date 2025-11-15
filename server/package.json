@@ -2,9 +2,11 @@
   "name": "book-to-speech",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -13,14 +15,20 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/leoraggy/book-to-speech/issues"
   },
   "homepage": "https://github.com/leoraggy/book-to-speech#readme",
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "install": "^0.13.0",
-    "npm": "^11.6.2"
+    "npm": "^11.6.2",
+    "openai": "^6.9.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }
