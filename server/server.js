@@ -84,6 +84,16 @@ app.post("/api/elevens", async (req, res) => {
   }
 });
 
+//test
+app.post('/api/test', async(req, res) => {
+  try {
+    console.log({testResponse: req.body});
+    res.send({response: "sent"});
+  } catch (err) {
+
+  }
+})
+
 // Chat endpoint
 app.post("/api/chat", async (req, res) => {
   try {
@@ -124,6 +134,7 @@ app.post("/api/chat", async (req, res) => {
 app.post('/api/format-text', async (req, res) => {
   try {
     const { text } = req.body;
+    console.log({testResponseFromFormat: req.body});
 
     if (!text || typeof text !== 'string') {
       return res

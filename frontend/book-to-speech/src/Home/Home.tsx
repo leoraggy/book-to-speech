@@ -32,7 +32,7 @@ export default function Home() {
 
     const payload = {
       fileName: file?.name ?? null,
-      textPreview: text ? `${text.slice(0, 200)}${text.length > 200 ? '…' : ''}` : null,
+      text: text ? `${text.slice(0, 200)}${text.length > 200 ? '…' : ''}` : null,
       gender,
       mp3Name,
       speed,
@@ -40,6 +40,16 @@ export default function Home() {
     };
 
     console.log("Submitting payload:", payload);
+    const result = await fetch(`http://localhost:3000/api/format-text`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload),
+    })
+
+    const response = await result.json()
+    console.log({result: response});
     setTimeout(() => {
       setMessage("✓ Settings captured! Your audio will be ready soon.");
       setIsLoading(false);
