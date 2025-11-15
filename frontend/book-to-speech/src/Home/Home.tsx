@@ -121,13 +121,11 @@ export default function Home() {
                 <select value={gender} onChange={(e) => setGender(e.target.value)} className={styles.select}>
                   <option value="female">Female</option>
                   <option value="male">Male</option>
-                  <option value="non-binary">Non-binary</option>
-                  <option value="neutral">Neutral</option>
                 </select>
               </label>
             </div>
 
-            <div className={styles.inputGroup}>
+            {/* <div className={styles.inputGroup}>
               <label className={styles.label}>
                 <div className={styles.labelText}>Atmosphere</div>
                 <select value={atmosphere} onChange={(e) => setAtmosphere(e.target.value as Atmosphere)} className={styles.select}>
@@ -137,7 +135,7 @@ export default function Home() {
                   <option value="Angry">Angry</option>
                 </select>
               </label>
-            </div>
+            </div> */}
           </div>
 
           <div className={styles.inputGroup}>
@@ -147,17 +145,22 @@ export default function Home() {
               </div>
               <input
                 type="range"
-                min={0.5}
-                max={2}
+                min={0.7}
+                max={1.2}
                 step={0.1}
                 value={speed}
                 onChange={(e) => setSpeed(Number(e.target.value))}
                 className={styles.slider}
+                style={
+                  {
+                    "--value": ((speed - 0.7) / (1.2 - 0.7)) * 100,
+                  } as React.CSSProperties
+                }
               />
               <div className={styles.speedHints}>
-                <span>0.5×</span>
+                <span>0.7×</span>
                 <span>Normal</span>
-                <span>2×</span>
+                <span>1.2×</span>
               </div>
             </label>
           </div>
