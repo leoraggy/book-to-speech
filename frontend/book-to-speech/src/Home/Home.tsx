@@ -73,6 +73,8 @@ export default function Home() {
       },
       body: JSON.stringify({
         text: annotatedText,
+        gender, 
+        speed,
       }),
     });
 
