@@ -1,0 +1,26 @@
+{
+  "name": "book-to-speech",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leoraggy/book-to-speech.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/leoraggy/book-to-speech/issues"
+  },
+  "homepage": "https://github.com/leoraggy/book-to-speech#readme",
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.24.1",
+    "install": "^0.13.0",
+    "npm": "^11.6.2"
+  }
+}
