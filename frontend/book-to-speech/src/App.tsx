@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import styles from './App.module.css';
+import Form from './../src/Home/Home.tsx'
 import axios from "axios";
 
 function App() {
@@ -16,9 +18,9 @@ function App() {
   };
 
   return (
-    <>
-      <h1>Hello</h1>
-    </>
+    <div className={styles.home}>
+      <Form/>
+    </div>
   );
 }
 
