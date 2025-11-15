@@ -9,7 +9,7 @@ import { ElevenLabsClient, play } from "@elevenlabs/elevenlabs-js";
 
 dotenv.config();
 const elevenlabs = new ElevenLabsClient();
-const voiceId = "21m00Tcm4TlvDq8ikWAM";
+//  const voiceId = "21m00Tcm4TlvDq8ikWAM";
 
 const app = express();
 const port = 3000;
@@ -52,8 +52,16 @@ app.get("/voices", async (req, res) => {
 
 app.post("/api/elevens", async (req, res) => {
   try {
+    voiceId =
+      req.body.gender == "female"
+        ? "21m00Tcm4TlvDq8ikWAM"
+        : "29vD33N1CtxCmqQRPOHJ";
+
     const audioStream = await elevenlabs.textToSpeech.convert(voiceId, {
       text: req.body.text,
+      voice_settings: {
+        speed: req.body.speed,
+      },
       modelId: "eleven_v3",
       outputFormat: "mp3_44100_128",
     });
