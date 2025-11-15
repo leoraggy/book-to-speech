@@ -117,7 +117,6 @@ export default function Home() {
       <form onSubmit={handleSubmit} className={styles.form}>
         {/* Content Input Section */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Your Content</h2>
           <div className={styles.inputGroup}>
             <label className={styles.label}>
               <div className={styles.labelText}>Upload a file</div>
