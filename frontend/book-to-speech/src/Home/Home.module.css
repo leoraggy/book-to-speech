@@ -274,8 +274,8 @@
   background: linear-gradient(
     to right,
     var(--color-primary) 0%,
-    var(--color-primary) calc(var(--value, 50) * 1%),
-    var(--color-border) calc(var(--value, 50) * 1%),
+    var(--color-primary) calc(var(--value, 33) * 1%),
+    var(--color-border) calc(var(--value, 33) * 1%),
     var(--color-border) 100%
   );
   outline: none;
