@@ -25,7 +25,7 @@ As software engineering students, we realized how much time is lost to distracti
 
 We set out to create a better way!
 
-The **Study Buddy Audio Project** aims to find a way to **automatically customize** the text before it's turned into audio. This allows for:
+The **Book to Speech Project** aims to find a way to **automatically customize** the text before it's turned into audio. This allows for:
 
 1.  **Correct Pronunciation:** Ensuring technical terms, code snippets, or formulas are read out clearly and accurately.
 2.  **Affordable Cost:** Offering a solution that is much more reasonably priced than the expensive alternatives.
