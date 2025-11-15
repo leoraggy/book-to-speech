@@ -20,7 +20,11 @@
   "homepage": "https://github.com/leoraggy/book-to-speech#readme",
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "install": "^0.13.0",
-    "npm": "^11.6.2"
+    "npm": "^11.6.2",
+    "openai": "^6.9.0"
   }
 }
