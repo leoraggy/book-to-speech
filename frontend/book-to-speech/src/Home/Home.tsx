@@ -12,6 +12,7 @@ export default function Home() {
   const [atmosphere, setAtmosphere] = useState<Atmosphere>("Neutral");
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files && e.target.files[0];
@@ -29,10 +30,13 @@ export default function Home() {
     }
 
     setIsLoading(true);
+    setAudioUrl(null); // clear any previous audio
 
     const payload = {
       fileName: file?.name ?? null,
-      text: text ? `${text.slice(0, 200)}${text.length > 200 ? '…' : ''}` : null,
+      text: text
+        ? `${text.slice(0, 200)}${text.length > 200 ? "…" : ""}`
+        : null,
       gender,
       mp3Name,
       speed,
@@ -40,20 +44,52 @@ export default function Home() {
     };
 
     console.log("Submitting payload:", payload);
-    const result = await fetch(`http://localhost:3000/api/format-text`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload),
-    })
 
-    const response = await result.json()
-    console.log({result: response});
-    setTimeout(() => {
-      setMessage("✓ Settings captured! Your audio will be ready soon.");
+    // 1) Call format-text to get annotated text
+    const formatRes = await fetch("http://localhost:3000/api/format-text", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!formatRes.ok) {
       setIsLoading(false);
-    }, 1000);
+      setMessage("Error formatting text.");
+      console.error(await formatRes.text());
+      return;
+    }
+
+    const formatJson = await formatRes.json();
+    const annotatedText = formatJson.annotatedText;
+    console.log("Annotated text:", annotatedText);
+
+    // 2) Call /api/elevens to get the MP3 file
+    const elevensRes = await fetch("http://localhost:3000/api/elevens", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: annotatedText,
+      }),
+    });
+
+    if (!elevensRes.ok) {
+      setIsLoading(false);
+      console.error("Error from backend:", await elevensRes.text());
+      setMessage("Error generating audio.");
+      return;
+    }
+
+    // Get MP3 as a Blob and create an object URL
+    const blob = await elevensRes.blob();
+    const url = URL.createObjectURL(blob);
+
+    setAudioUrl(url);
+    setIsLoading(false);
+    setMessage("✓ Your audio is ready!");
   };
 
   const handleReset = () => {
@@ -64,13 +100,16 @@ export default function Home() {
     setSpeed(1);
     setAtmosphere("Neutral");
     setMessage(null);
+    setAudioUrl(null);
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.heroSection}>
         <h1 className={styles.heading}>📚 Book to Speech</h1>
-        <p className={styles.tagline}>Transform your text into natural-sounding audio</p>
+        <p className={styles.tagline}>
+          Transform your text into natural-sounding audio
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -86,7 +125,9 @@ export default function Home() {
                 onChange={handleFileChange}
                 className={styles.fileInput}
               />
-              {file && <span className={styles.fileName}>✓ {file.name}</span>}
+              {file && (
+                <span className={styles.fileName}>✓ {file.name}</span>
+              )}
             </label>
           </div>
 
@@ -106,7 +147,11 @@ export default function Home() {
                 className={styles.textarea}
               />
             </label>
-            {text && <div className={styles.charCount}>{text.length} characters</div>}
+            {text && (
+              <div className={styles.charCount}>
+                {text.length} characters
+              </div>
+            )}
           </div>
         </div>
 
@@ -118,7 +163,11 @@ export default function Home() {
             <div className={styles.inputGroup}>
               <label className={styles.label}>
                 <div className={styles.labelText}>Narrator Gender</div>
-                <select value={gender} onChange={(e) => setGender(e.target.value)} className={styles.select}>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className={styles.select}
+                >
                   <option value="female">Female</option>
                   <option value="male">Male</option>
                   <option value="non-binary">Non-binary</option>
@@ -130,7 +179,13 @@ export default function Home() {
             <div className={styles.inputGroup}>
               <label className={styles.label}>
                 <div className={styles.labelText}>Atmosphere</div>
-                <select value={atmosphere} onChange={(e) => setAtmosphere(e.target.value as Atmosphere)} className={styles.select}>
+                <select
+                  value={atmosphere}
+                  onChange={(e) =>
+                    setAtmosphere(e.target.value as Atmosphere)
+                  }
+                  className={styles.select}
+                >
                   <option value="Neutral">Neutral</option>
                   <option value="Mysterious">Mysterious</option>
                   <option value="Elated">Elated</option>
@@ -143,7 +198,10 @@ export default function Home() {
           <div className={styles.inputGroup}>
             <label className={styles.label}>
               <div className={styles.labelText}>
-                Narration Speed: <span className={styles.speedValue}>{speed.toFixed(1)}×</span>
+                Narration Speed:{" "}
+                <span className={styles.speedValue}>
+                  {speed.toFixed(1)}×
+                </span>
               </div>
               <input
                 type="range"
@@ -181,10 +239,18 @@ export default function Home() {
 
         {/* Actions */}
         <div className={styles.actionButtons}>
-          <button type="submit" disabled={isLoading} className={styles.submitButton}>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={styles.submitButton}
+          >
             {isLoading ? "Processing..." : "Create Audio"}
           </button>
-          <button type="button" onClick={handleReset} className={styles.resetButton}>
+          <button
+            type="button"
+            onClick={handleReset}
+            className={styles.resetButton}
+          >
             Reset
           </button>
         </div>
@@ -200,11 +266,15 @@ export default function Home() {
           <div className={styles.previewGrid}>
             <div className={styles.previewItem}>
               <span className={styles.previewLabel}>File</span>
-              <span className={styles.previewValue}>{file ? file.name : "—"}</span>
+              <span className={styles.previewValue}>
+                {file ? file.name : "—"}
+              </span>
             </div>
             <div className={styles.previewItem}>
               <span className={styles.previewLabel}>Text Length</span>
-              <span className={styles.previewValue}>{text.length} chars</span>
+              <span className={styles.previewValue}>
+                {text.length} chars
+              </span>
             </div>
             <div className={styles.previewItem}>
               <span className={styles.previewLabel}>Gender</span>
@@ -212,7 +282,9 @@ export default function Home() {
             </div>
             <div className={styles.previewItem}>
               <span className={styles.previewLabel}>Speed</span>
-              <span className={styles.previewValue}>{speed.toFixed(1)}×</span>
+              <span className={styles.previewValue}>
+                {speed.toFixed(1)}×
+              </span>
             </div>
             <div className={styles.previewItem}>
               <span className={styles.previewLabel}>Atmosphere</span>
@@ -224,6 +296,19 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* 🔽 Download button at the bottom */}
+        {audioUrl && (
+          <div className={styles.downloadSection}>
+            <a
+              href={audioUrl}
+              download={mp3Name || "output.mp3"}
+              className={styles.submitButton}
+            >
+              ⬇️ Download MP3
+            </a>
+          </div>
+        )}
       </form>
     </div>
   );
